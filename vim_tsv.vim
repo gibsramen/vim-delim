@@ -6,7 +6,7 @@ function! CountTabs()
     return num_tabs
 endfunction
 
-function! GetTabLengthList()
+function! GetColLengthList()
     let num_tabs = CountTabs()
     let largest_col_entries = map(range(num_tabs+1), 0)
     let i = 1
@@ -18,15 +18,37 @@ function! GetTabLengthList()
         "split each line and get length of each column entry
         let j = 0
         let vals = split(getline(i))
+        let val_lengths = map(vals, 'len(v:val)')
         while j < len(vals)
             "if current word is longest, update list
-            if len(vals[j]) > largest_col_entries[j]
-                let largest_col_entries[j] = len(vals[j])
+            if val_lengths[j] > largest_col_entries[j]
+                let largest_col_entries[j] = val_lengths[j]
             endif
             let j += 1
         endwhile
     endwhile
-    echo largest_col_entries
+    return largest_col_entries
 endfunction
 
-nmap <leader>q :call GetTabLengthList()<CR>
+function! TogglePrettyView()
+    "only want to calculate vartabstops once
+    if b:new_file
+        echo "hi"
+        let largest_col_entries = GetColLengthList()
+        let b:new_tab_stops = join(largest_col_entries, ',')
+        let b:new_file = 0
+        echo "bye"
+    endif
+
+    if b:pretty_view
+        execute 'setlocal vartabstop='
+        let b:pretty_view = 0
+    else
+        execute 'setlocal vartabstop=' . b:new_tab_stops
+        let b:pretty_view = 1
+    endif
+endfunction
+
+let b:pretty_view = 0
+let b:new_file = 1
+nmap <leader>q :call TogglePrettyView()<CR>
