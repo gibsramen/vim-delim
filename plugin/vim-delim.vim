@@ -4,7 +4,8 @@ function! CountDelim(delim)
         "silent exe "1s/\t//gn"
         silent exe "1s/" . a:delim . "//gn"
     redir END
-    let num_tabs = str2nr(strpart(cnt, 1, 1))
+    let first_space = stridx(cnt, " ")
+    let num_tabs = str2nr(strpart(cnt, 1, first_space))
     return num_tabs
 endfunction
 
@@ -52,7 +53,7 @@ function! TogglePrettyView()
     endif
 endfunction
 
-function! OtherDelim(delim)
+function! SplitDelimView(delim)
     "open a split buffer with pretty view
     let largest_col_entries = GetColLengthList(a:delim)
     let largest_col_entries = map(largest_col_entries, '4+v:val')
@@ -72,8 +73,8 @@ function! OtherDelim(delim)
     setlocal buftype=nowrite
 endfunction
 
-command -nargs=1 OtherDelim call OtherDelim(<f-args>)
+command! -nargs=0 TogglePrettyTabView call TogglePrettyView()
+command! -nargs=1 SplitDelimView call SplitDelimView(<f-args>)
 
 let b:pretty_view = 0
 let b:new_file = 1
-nmap <leader>p :call TogglePrettyView()<CR>
