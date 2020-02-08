@@ -1,3 +1,6 @@
+let b:pretty_view = 0
+let b:new_file = 1
+
 function! CountDelim(delim)
     "count the number of tabs in the file
     redir => cnt
@@ -37,6 +40,9 @@ endfunction
 
 function! TogglePrettyView()
     "only want to calculate vartabstops first time
+    if !exists("b:new_file")
+        let b:new_file = 1
+    endif
     if b:new_file
         let largest_col_entries = GetColLengthList("\t")
         let largest_col_entries = map(largest_col_entries, '4+v:val')
@@ -44,6 +50,9 @@ function! TogglePrettyView()
         let b:new_file = 0
     endif
 
+    if !exists("b:pretty_view")
+        let b:pretty_view = 1
+    endif
     if b:pretty_view
         execute 'setlocal vartabstop='
         let b:pretty_view = 0
@@ -75,6 +84,3 @@ endfunction
 
 command! -nargs=0 TogglePrettyTabView call TogglePrettyView()
 command! -nargs=1 SplitDelimView call SplitDelimView(<f-args>)
-
-let b:pretty_view = 0
-let b:new_file = 1
